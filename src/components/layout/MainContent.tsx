@@ -20,8 +20,8 @@ function lazyFeature<M, P>(load: () => Promise<M>, select: (module: M) => Compon
 }
 
 const DashboardView = lazyFeature(
-  () => import('@/features/dashboard/components/DashboardView'),
-  (m) => m.DashboardView,
+  () => import('@/features/dashboard/components/PandaDashboard'),
+  (m) => m.PandaDashboard,
 );
 const DeliveryTracePage = lazyFeature(
   () => import('@/features/troubleshoot/DeliveryTracePage'),

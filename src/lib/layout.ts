@@ -45,10 +45,7 @@ function checkSpecialLink(
   canGet?: CanGet,
 ): SpecialLinkInfo | null {
   if (viewName.startsWith('Dashboard/') || viewName === 'CustomComponent/Dashboard') {
-    if (edition === 'oss') return { visible: false, enterprise: true };
-    const hasLiveMetrics = hasPerm ? hasPerm('liveMetrics') : true;
-    const hasTraceGet = canGet ? canGet('sysTrace') : true;
-    return { visible: hasLiveMetrics && hasTraceGet, enterprise: true };
+    return { visible: canGet ? canGet('sysAccount') : true, enterprise: false };
   }
 
   if (viewName === 'CustomComponent/LiveDelivery') {

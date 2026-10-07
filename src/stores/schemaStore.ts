@@ -5,6 +5,7 @@
  */
 
 import { create } from 'zustand';
+import { pandaSchema } from '@/lib/pandaSchema';
 import type { Schema, LayoutSubItem } from '@/types/schema';
 
 export interface SearchIndexEntry {
@@ -163,7 +164,8 @@ export const useSchemaStore = create<SchemaState>()((set) => ({
   viewToSection: {},
   searchIndex: [],
 
-  setSchema: (schema) => {
+  setSchema: (source) => {
+    const schema = pandaSchema(source);
     const { viewToSection, linkEntries } = walkLayouts(schema);
     const searchIndex = buildSearchIndex(schema, viewToSection, linkEntries);
     set({
