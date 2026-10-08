@@ -19,6 +19,10 @@ function lazyFeature<M, P>(load: () => Promise<M>, select: (module: M) => Compon
   return lazy(() => load().then((module) => ({ default: select(module) })));
 }
 
+const MailHistoryView = lazyFeature(
+  () => import('@/features/history/MailHistory'),
+  (m) => m.MailHistory,
+);
 const DashboardView = lazyFeature(
   () => import('@/features/dashboard/components/PandaDashboard'),
   (m) => m.PandaDashboard,
@@ -73,6 +77,7 @@ function renderView(schema: Schema | null, viewName?: string, id?: string, secti
       const firstId = schema?.dashboards?.[0]?.id ?? 'overview';
       return <DashboardView dashboardId={firstId} section={section ?? ''} />;
     }
+    if (componentName === 'MailHistory') return <MailHistoryView id={id} section={section ?? 'Management'} />;
     if (componentName === 'LiveDelivery') {
       return <DeliveryTracePage />;
     }

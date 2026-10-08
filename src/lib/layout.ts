@@ -48,6 +48,9 @@ function checkSpecialLink(
     return { visible: canGet ? canGet('sysAccount') : true, enterprise: false };
   }
 
+  if (viewName === 'CustomComponent/MailHistory') {
+    return { visible: hasPerm ? hasPerm('impersonate') && hasPerm('sysAccountGet') : true, enterprise: false };
+  }
   if (viewName === 'CustomComponent/LiveDelivery') {
     const allowed = hasPerm ? hasPerm('liveDeliveryTest') : true;
     return { visible: allowed, enterprise: false };

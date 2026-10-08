@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import type { Schema, LayoutSubItem, LayoutItem } from '@/types/schema';
 import { translateSchemaMetadata, translateSchemaText } from '@/i18n/schemaChinese';
 
@@ -23,6 +24,18 @@ export function pandaSchema(source: Schema): Schema {
         : [];
     });
   }
+  const management = schema.layouts.find((layout) => layout.name === 'Management');
+  if (
+    management &&
+    !management.items.some((item) => 'link' in item && item.link.viewName === 'CustomComponent/MailHistory')
+  )
+    management.items.splice(1, 0, {
+      link: {
+        name: i18n.language.startsWith('en') ? 'Mail history' : '收发历史',
+        icon: 'History',
+        viewName: 'CustomComponent/MailHistory',
+      },
+    });
   for (const [name, form] of Object.entries(schema.forms)) {
     if (hidden(name)) {
       delete schema.forms[name];

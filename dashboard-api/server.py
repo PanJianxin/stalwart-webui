@@ -1,4 +1,5 @@
 """Internal aggregate metrics collector. Never logs or stores authentication headers."""
+import history
 import json
 import math
 import os
@@ -78,13 +79,13 @@ def readHistory(connection, hours, now):
             'collectorError': collectorError}
 
 
-def authorize(auth):
+def authorize(auth, requiredPermissions=frozenset({'sysMetricsGet'})):
     if not auth or not (auth.startswith('Bearer ') or auth.startswith('Basic ')):
         return 401
     try:
         with HTTP.open(Request(UPSTREAM + '/api/account', headers={'Authorization': auth}), timeout=8) as response:
             account = json.load(response)
-        return 200 if 'sysMetricsGet' in account.get('permissions', []) else 403
+        return 200 if requiredPermissions.issubset(set(account.get('permissions', []))) else 403
     except HTTPError as error:
         return 401 if error.code == 401 else 403
     except (URLError, TimeoutError, ValueError):
@@ -125,16 +126,38 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == '/healthz':
             self.respond(200, {'status': 'ok'})
             return
-        if parsed.path != '/api/panda/dashboard':
+        isHistory = parsed.path == '/api/panda/history' or parsed.path.startswith('/api/panda/history/')
+        if parsed.path != '/api/panda/dashboard' and not isHistory:
             self.respond(404, {'error': '未找到接口'})
             return
         if not REQUEST_SLOTS.acquire(blocking=False):
             self.respond(429, {'error': '请求过于频繁'})
             return
         try:
-            status = authorize(self.headers.get('Authorization'))
+            status = authorize(self.headers.get('Authorization'), frozenset({'impersonate', 'sysAccountGet'}) if isHistory else frozenset({'sysMetricsGet'}))
             if status != 200:
                 self.respond(status, {'error': '请使用拥有指标读取权限的管理员账户登录'})
+                return
+            if isHistory:
+                query = parse_qs(parsed.query)
+                try:
+                    page = int(query.get('page', ['1'])[0])
+                    direction = query.get('direction', ['all'])[0]
+                    if not 1 <= page <= 100000 or direction not in ('all', 'received', 'sent'):
+                        raise ValueError()
+                except ValueError:
+                    self.respond(400, {'error': 'Invalid history filter'})
+                    return
+                connection = openDatabase()
+                try:
+                    if parsed.path == '/api/panda/history':
+                        payload = history.queryHistory(connection, direction, query.get('search', [''])[0], page)
+                    else:
+                        recordId = parsed.path.rsplit('/', 1)[-1]
+                        payload = history.historyDetail(connection, recordId) if re.fullmatch('[a-f0-9]{32}', recordId) else None
+                    self.respond(200 if payload is not None else 404, payload or {'error': 'Record not found'})
+                finally:
+                    connection.close()
                 return
             try:
                 hours = int(parse_qs(parsed.query).get('hours', ['24'])[0])
@@ -154,4 +177,5 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     threading.Thread(target=collectForever, daemon=True).start()
+    threading.Thread(target=history.MailCollector(HTTP, UPSTREAM, openDatabase).run, daemon=True).start()
     ThreadingHTTPServer(('0.0.0.0', 8090), Handler).serve_forever()
