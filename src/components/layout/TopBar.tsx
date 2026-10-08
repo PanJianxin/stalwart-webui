@@ -10,7 +10,7 @@ import { Languages } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as LucideIcons from 'lucide-react';
-const { Sun, Moon, User, LogOut, Check, Menu, Sparkles, Search } = LucideIcons;
+const { Sun, Moon, User, LogOut, Check, Menu, Search } = LucideIcons;
 import { Button } from '@/components/ui/button';
 import { CommandPalette } from '@/components/common/CommandPalette';
 import {
@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Logo from '@/components/common/Logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { EnterpriseUpsell } from '@/components/common/EnterpriseUpsell';
 import { visibleLayouts } from '@/lib/layout';
 import { sectionLandingLink } from '@/lib/lastVisited';
 import { useUIStore } from '@/stores/uiStore';
@@ -59,7 +58,6 @@ export function TopBar() {
   const hasObjectPermission = useAccountStore((s) => s.hasObjectPermission);
   const hasPermission = useAccountStore((s) => s.hasPermission);
   const schema = useSchemaStore((s) => s.schema);
-  const [upsellOpen, setUpsellOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
@@ -111,8 +109,6 @@ export function TopBar() {
       </div>
 
       <div className="ml-auto flex items-center gap-2 md:ml-0">
-        {edition !== 'enterprise' && <EnterpriseUpsell open={upsellOpen} onClose={() => setUpsellOpen(false)} />}
-
         <Button
           variant="ghost"
           size="icon"
@@ -187,16 +183,6 @@ export function TopBar() {
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-              </>
-            )}
-
-            {edition !== 'enterprise' && (
-              <>
-                <DropdownMenuItem onClick={() => setUpsellOpen(true)}>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {t('tryEnterprise', 'Try Enterprise')}
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
             )}

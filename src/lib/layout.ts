@@ -54,7 +54,7 @@ function checkSpecialLink(
   }
 
   if (viewName === 'CustomComponent/LiveTracing') {
-    if (edition === 'oss') return { visible: false, enterprise: true };
+    if (edition !== 'enterprise') return { visible: false, enterprise: true };
     const allowed = hasPerm ? hasPerm('liveTracing') : true;
     return { visible: allowed, enterprise: true };
   }
@@ -83,7 +83,7 @@ export function isLinkVisible(
 
   if (!canGet(resolved.permissionPrefix)) return false;
 
-  if (resolved.enterprise && edition === 'oss') return false;
+  if (resolved.enterprise && edition !== 'enterprise') return false;
 
   return true;
 }

@@ -65,6 +65,7 @@ export function useGlobalSearch(onAfterSelect?: () => void) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const schema = useSchemaStore((s) => s.schema);
+  const edition = useAccountStore((s) => s.edition);
   const searchIndex = useSchemaStore((s) => s.searchIndex);
   const hasObjectPermission = useAccountStore((s) => s.hasObjectPermission);
 
@@ -95,13 +96,13 @@ export function useGlobalSearch(onAfterSelect?: () => void) {
         if (!haystack.includes(token)) return false;
       }
       const resolved = resolveObject(schema, entry.viewName);
-      if (!resolved) return false;
+      if (!resolved || (resolved.enterprise && edition !== 'enterprise')) return false;
       return hasObjectPermission(resolved.permissionPrefix, 'Get');
     });
 
     filtered.sort((a, b) => TYPE_ORDER[a.type] - TYPE_ORDER[b.type]);
     return filtered.slice(0, MAX_RESULTS);
-  }, [debouncedQuery, searchIndex, schema, hasObjectPermission]);
+  }, [debouncedQuery, searchIndex, schema, hasObjectPermission, edition]);
 
   const groups = useMemo(() => {
     const map = new Map<SearchIndexEntry['type'], SearchIndexEntry[]>();
