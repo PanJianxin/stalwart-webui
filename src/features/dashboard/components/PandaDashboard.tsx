@@ -513,15 +513,19 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
             {overview.listeners.map((l) => (
               <div
                 key={l.id}
-                className="flex items-center justify-between gap-2 rounded-xl bg-muted/35 px-3 py-2 text-xs"
+                className="grid grid-cols-[minmax(0,1fr)_4rem_5rem] items-center gap-2 rounded-xl bg-muted/35 px-3 py-2 text-xs"
               >
-                <span className="font-medium">{l.protocol === 'http' ? 'HTTP' : l.protocol.toUpperCase()}</span>
-                <span className="text-muted-foreground">
+                <span className="min-w-0 break-words font-medium">
+                  {l.protocol === 'http' ? 'HTTP' : l.protocol.toUpperCase()}
+                </span>
+                <span className="text-center tabular-nums text-muted-foreground">
                   {Object.keys(l.bind ?? {})
                     .map((v) => v.split(':').at(-1))
                     .join('、')}
                 </span>
-                <span className={l.useTls ? 'text-teal-600' : 'text-muted-foreground'}>
+                <span
+                  className={`text-right whitespace-nowrap ${l.useTls ? 'text-teal-600' : 'text-muted-foreground'}`}
+                >
                   {l.useTls ? '支持 TLS' : '内部明文'}
                 </span>
               </div>
