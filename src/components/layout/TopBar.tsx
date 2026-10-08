@@ -116,7 +116,7 @@ export function TopBar() {
           size="icon"
           className="md:hidden"
           onClick={() => setPaletteOpen(true)}
-          aria-label={t('search', 'Search')}
+          aria-label="搜索"
         >
           <Search className="h-4 w-4" />
         </Button>
