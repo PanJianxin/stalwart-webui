@@ -12,7 +12,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useSchemaStore } from '@/stores/schemaStore';
 import { useAccountStore } from '@/stores/accountStore';
 import { useUIStore } from '@/stores/uiStore';
-import { fetchSession, fetchSchema, fetchAccountInfo } from '@/services/jmap/client';
+import { fetchAdministrationBootstrap } from '@/services/jmap/client';
 import { setLocale } from '@/i18n';
 import { TopBar } from '@/components/layout/TopBar';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -121,7 +121,7 @@ export default function AdminPanel() {
 
     async function init() {
       try {
-        const session = await fetchSession();
+        const [session, schemaData, accountData] = await fetchAdministrationBootstrap();
         const accounts: Record<string, { name: string; isPersonal: boolean }> = {};
         for (const [accountId, info] of Object.entries(
           session.accounts as Record<string, { name: string; isPersonal: boolean }>,
@@ -142,8 +142,6 @@ export default function AdminPanel() {
 
         if (cancelled) return;
         setSession(accounts, primaryAccountId, apiUrl, maxObjectsInGet, maxObjectsInSet);
-
-        const [schemaData, accountData] = await Promise.all([fetchSchema(), fetchAccountInfo()]);
 
         if (cancelled) return;
 

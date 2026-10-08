@@ -247,3 +247,24 @@ export async function fetchAccountInfo(): Promise<AccountInfoResponse> {
   const response = await apiFetch('/api/account');
   return response.json() as Promise<AccountInfoResponse>;
 }
+
+// Start independent startup requests together, and share only in-flight work.
+// React StrictMode can mount twice; never retain account data across logins.
+type AdministrationBootstrap = [Record<string, unknown>, Schema, AccountInfoResponse];
+let bootstrapRequest: Promise<AdministrationBootstrap> | null = null;
+let bootstrapToken: string | null = null;
+export function fetchAdministrationBootstrap(): Promise<AdministrationBootstrap> {
+  const token = useAuthStore.getState().accessToken;
+  if (bootstrapRequest && bootstrapToken === token) return bootstrapRequest;
+  const request = Promise.all([fetchSession(), fetchSchema(), fetchAccountInfo()]);
+  bootstrapRequest = request;
+  bootstrapToken = token;
+  void request.then(clear, clear);
+  function clear() {
+    if (bootstrapRequest === request) {
+      bootstrapRequest = null;
+      bootstrapToken = null;
+    }
+  }
+  return request;
+}
