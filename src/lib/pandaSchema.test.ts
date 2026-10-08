@@ -45,4 +45,35 @@ describe('single-tenant UI policy', () => {
     expect(JSON.stringify(result.layouts)).not.toContain('x:Tenant');
     expect(source.objects['x:Tenant']).toBeDefined();
   });
+  it('places mail history under email delivery and never creates a top-level history item', () => {
+    const source = {
+      layouts: [
+        {
+          name: 'Management',
+          icon: 'monitor',
+          items: [
+            {
+              container: {
+                name: 'Emails',
+                icon: 'send',
+                items: [
+                  { type: 'link', name: 'Queued Messages', viewName: 'x:QueuedMessage' },
+                  { type: 'link', name: 'Delivery Test', viewName: 'CustomComponent/LiveDelivery' },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      forms: {},
+      objects: {},
+    } as unknown as Schema;
+    const result = pandaSchema(source);
+    expect(result.layouts[0].items).toHaveLength(1);
+    const delivery = result.layouts[0].items[0];
+    expect(
+      'container' in delivery && delivery.container.items.map((item) => item.type === 'link' && item.viewName),
+    ).toEqual(['x:QueuedMessage', 'CustomComponent/MailHistory', 'CustomComponent/LiveDelivery']);
+    expect(JSON.stringify(source)).not.toContain('MailHistory');
+  });
 });

@@ -9,15 +9,25 @@ import { useSchemaStore } from '@/stores/schemaStore';
 import { useCacheStore } from '@/stores/cacheStore';
 import { useAccountStore } from '@/stores/accountStore';
 import { resolveObject } from '@/lib/schemaResolver';
-import { DynamicList } from '@/components/lists/DynamicList';
-import { DynamicForm } from '@/components/forms/DynamicForm';
-import { DynamicViewPage } from '@/components/views/DynamicViewPage';
 import { LoadingFallback } from '@/components/common/LoadingFallback';
 import type { Schema } from '@/types/schema';
 
 function lazyFeature<M, P>(load: () => Promise<M>, select: (module: M) => ComponentType<P>) {
   return lazy(() => load().then((module) => ({ default: select(module) })));
 }
+
+const DynamicList = lazyFeature(
+  () => import('@/components/lists/DynamicList'),
+  (m) => m.DynamicList,
+);
+const DynamicForm = lazyFeature(
+  () => import('@/components/forms/DynamicForm'),
+  (m) => m.DynamicForm,
+);
+const DynamicViewPage = lazyFeature(
+  () => import('@/components/views/DynamicViewPage'),
+  (m) => m.DynamicViewPage,
+);
 
 const MailHistoryView = lazyFeature(
   () => import('@/features/history/MailHistory'),

@@ -9,8 +9,8 @@ import { setLanguage } from '@/i18n';
 import { Languages } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import * as LucideIcons from 'lucide-react';
-const { Sun, Moon, User, LogOut, Check, Menu, Search } = LucideIcons;
+import { Sun, Moon, User, LogOut, Check, Menu, Search } from 'lucide-react';
+import { getSchemaIcon } from '@/lib/schemaIcons';
 import { Button } from '@/components/ui/button';
 import { CommandPalette } from '@/components/common/CommandPalette';
 import {
@@ -34,14 +34,6 @@ import { useAccountStore } from '@/stores/accountStore';
 import { useSchemaStore } from '@/stores/schemaStore';
 
 const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
-
-function getIcon(name: string): LucideIcons.LucideIcon {
-  const formatted = name
-    .split('-')
-    .map((s) => s[0].toUpperCase() + s.slice(1))
-    .join('');
-  return ((LucideIcons as Record<string, unknown>)[formatted] as LucideIcons.LucideIcon) || LucideIcons.Circle;
-}
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -149,7 +141,7 @@ export function TopBar() {
                 <DropdownMenuLabel>{t('sections', 'Sections')}</DropdownMenuLabel>
                 <DropdownMenuGroup>
                   {navigableLayouts.map((layout) => {
-                    const Icon = getIcon(layout.icon);
+                    const Icon = getSchemaIcon(layout.icon);
                     return (
                       <DropdownMenuItem
                         key={layout.name}

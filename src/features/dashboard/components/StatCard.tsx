@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-SEL
  */
 
-import { useMemo } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { createElement, useMemo } from 'react';
+import { getSchemaIcon } from '@/lib/schemaIcons';
 import { Info } from 'lucide-react';
 import { LineChart, Line } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,22 +17,9 @@ import { cardValue, formatValue, sparklineData, computeDelta } from '../helpers'
 import { useLiveMetricsStore } from '../stores/liveMetricsStore';
 import { getChartColor } from '@/components/ui/chart';
 
-const warnedIcons = new Set<string>();
-
 function LucideIcon({ name, className }: { name: string; className?: string }) {
-  const formatted = name
-    .split('-')
-    .map((s) => s[0].toUpperCase() + s.slice(1))
-    .join('');
-  const IconComp = (LucideIcons as Record<string, unknown>)[formatted] as LucideIcons.LucideIcon | undefined;
-  if (!IconComp) {
-    if (import.meta.env.DEV && !warnedIcons.has(name)) {
-      warnedIcons.add(name);
-      console.warn(`Unknown icon name: "${name}"`);
-    }
-    return <LucideIcons.HelpCircle className={className} />;
-  }
-  return <IconComp className={className} />;
+  const Icon = getSchemaIcon(name);
+  return createElement(Icon, { className });
 }
 
 interface StatCardProps {

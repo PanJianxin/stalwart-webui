@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-SEL
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import * as LucideIcons from 'lucide-react';
-const { ChevronDown, Lock } = LucideIcons;
+import { ChevronDown, Lock } from 'lucide-react';
+import { getSchemaIcon } from '@/lib/schemaIcons';
 import { cn } from '@/lib/utils';
 import { translateSchemaText } from '@/i18n/schemaChinese';
 import { Button } from '@/components/ui/button';
@@ -22,13 +22,8 @@ import { sectionLandingLink } from '@/lib/lastVisited';
 import type { Layout, LayoutItem, LayoutSubItem } from '@/types/schema';
 
 function LucideIcon({ name, className }: { name: string; className?: string }) {
-  const formatted = name
-    .split('-')
-    .map((s) => s[0].toUpperCase() + s.slice(1))
-    .join('');
-  const IconComp = (LucideIcons as Record<string, unknown>)[formatted] as LucideIcons.LucideIcon | undefined;
-  if (!IconComp) return <LucideIcons.Circle className={className} />;
-  return <IconComp className={className} />;
+  const IconComp = getSchemaIcon(name);
+  return createElement(IconComp, { className });
 }
 
 function resolveViewPath(sectionName: string, viewName: string): string {
@@ -370,12 +365,7 @@ export function Sidebar() {
           <TooltipProvider>
             <div className="flex items-center justify-around border-t bg-background px-2 py-2">
               {layouts.map((target) => {
-                const Icon = (LucideIcons as Record<string, unknown>)[
-                  target.icon
-                    .split('-')
-                    .map((s) => s[0].toUpperCase() + s.slice(1))
-                    .join('')
-                ] as LucideIcons.LucideIcon | undefined;
+                const Icon = getSchemaIcon(target.icon);
                 const isActive = target.name === activeSection;
                 return (
                   <Tooltip key={target.name}>
@@ -389,7 +379,7 @@ export function Sidebar() {
                         onClick={() => handleSectionClick(target)}
                         className={cn('h-9 w-9', isActive && 'bg-accent text-accent-foreground')}
                       >
-                        {Icon ? <Icon className="h-4 w-4" /> : <LucideIcons.Circle className="h-4 w-4" />}
+                        <Icon className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">{translateSchemaText(target.name)}</TooltipContent>

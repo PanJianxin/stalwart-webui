@@ -25,16 +25,20 @@ export function pandaSchema(source: Schema): Schema {
     });
   }
   const management = schema.layouts.find((layout) => layout.name === 'Management');
+  const delivery = management?.items.find(
+    (item) =>
+      'container' in item &&
+      item.container.items.some((child) => child.type === 'link' && child.viewName === 'x:QueuedMessage'),
+  );
   if (
-    management &&
-    !management.items.some((item) => 'link' in item && item.link.viewName === 'CustomComponent/MailHistory')
+    delivery &&
+    'container' in delivery &&
+    !delivery.container.items.some((child) => child.type === 'link' && child.viewName === 'CustomComponent/MailHistory')
   )
-    management.items.splice(1, 0, {
-      link: {
-        name: i18n.language.startsWith('en') ? 'Mail history' : '收发历史',
-        icon: 'History',
-        viewName: 'CustomComponent/MailHistory',
-      },
+    delivery.container.items.splice(1, 0, {
+      type: 'link',
+      name: i18n.language.startsWith('en') ? 'Mail history' : '收发历史',
+      viewName: 'CustomComponent/MailHistory',
     });
   for (const [name, form] of Object.entries(schema.forms)) {
     if (hidden(name)) {
