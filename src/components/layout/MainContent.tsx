@@ -77,7 +77,8 @@ function renderView(schema: Schema | null, viewName?: string, id?: string, secti
       const firstId = schema?.dashboards?.[0]?.id ?? 'overview';
       return <DashboardView dashboardId={firstId} section={section ?? ''} />;
     }
-    if (componentName === 'MailHistory') return <MailHistoryView id={id} section={section ?? 'Management'} />;
+    if (componentName === 'MailHistory' || componentName.startsWith('MailHistory/'))
+      return <MailHistoryView id={id ?? componentName.split('/')[1]} section={section ?? 'Management'} />;
     if (componentName === 'LiveDelivery') {
       return <DeliveryTracePage />;
     }
