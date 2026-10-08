@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-SEL
  */
 
+import { translateSchemaText } from '@/i18n/schemaChinese';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as LucideIcons from 'lucide-react';
@@ -152,7 +153,7 @@ export function TopBar() {
                         }}
                       >
                         <Icon className="mr-2 h-4 w-4" />
-                        {layout.name}
+                        {translateSchemaText(layout.name)}
                       </DropdownMenuItem>
                     );
                   })}

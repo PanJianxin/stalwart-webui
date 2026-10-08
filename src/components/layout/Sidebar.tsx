@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 const { ChevronDown, Lock } = LucideIcons;
 import { cn } from '@/lib/utils';
+import { translateSchemaText } from '@/i18n/schemaChinese';
 import { Button } from '@/components/ui/button';
 import { EnterpriseUpsell } from '@/components/common/EnterpriseUpsell';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -383,7 +384,7 @@ export function Sidebar() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-label={target.name}
+                        aria-label={translateSchemaText(target.name)}
                         aria-current={isActive ? 'page' : undefined}
                         onClick={() => handleSectionClick(target)}
                         className={cn('h-9 w-9', isActive && 'bg-accent text-accent-foreground')}
@@ -391,7 +392,7 @@ export function Sidebar() {
                         {Icon ? <Icon className="h-4 w-4" /> : <LucideIcons.Circle className="h-4 w-4" />}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="top">{target.name}</TooltipContent>
+                    <TooltipContent side="top">{translateSchemaText(target.name)}</TooltipContent>
                   </Tooltip>
                 );
               })}

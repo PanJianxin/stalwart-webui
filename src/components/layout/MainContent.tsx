@@ -81,18 +81,18 @@ function renderView(schema: Schema | null, viewName?: string, id?: string, secti
     }
     return (
       <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
-        Unknown component: {componentName}
+        未知组件： {componentName}
       </div>
     );
   }
 
   if (!schema) {
-    return <div className="flex items-center justify-center p-8 text-muted-foreground">Loading...</div>;
+    return <div className="flex items-center justify-center p-8 text-muted-foreground">正在加载…</div>;
   }
 
   const resolved = resolveObject(schema, viewName);
   if (!resolved) {
-    return <div className="flex items-center justify-center p-8 text-destructive">Unknown view: {viewName}</div>;
+    return <div className="flex items-center justify-center p-8 text-destructive">未知视图： {viewName}</div>;
   }
 
   if (resolved.objectName === 'x:Action') {

@@ -1,3 +1,4 @@
+import { translateSchemaText } from '@/i18n/schemaChinese';
 /*
  * SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
  *
@@ -89,7 +90,7 @@ export default function AdminPanel() {
   const searchIndex = useSchemaStore((s) => s.searchIndex);
   const pageTitle = useMemo(() => {
     if (!section) return t('dashboard.title', 'Dashboard');
-    if (!viewName) return section;
+    if (!viewName) return translateSchemaText(section);
     let label: string | undefined;
     for (const entry of searchIndex) {
       if (entry.type !== 'link' || entry.viewName !== viewName) continue;
@@ -101,7 +102,7 @@ export default function AdminPanel() {
     }
     const name = label ?? friendlyName(viewName);
     const title = id === 'new' ? t('form.createTitle', 'Create {{name}}', { name }) : name;
-    return `${title} · ${section}`;
+    return `${title} · ${translateSchemaText(section)}`;
   }, [section, viewName, id, searchIndex, t]);
 
   useDocumentTitle(pageTitle);

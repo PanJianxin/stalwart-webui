@@ -1,3 +1,4 @@
+import { translateSchemaText } from '@/i18n/schemaChinese';
 /*
  * SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
  *
@@ -63,11 +64,11 @@ function walkLayouts(schema: Schema): { viewToSection: Record<string, string>; l
           type: 'link',
           viewName: item.link.viewName,
           section: sectionName,
-          breadcrumb: `${sectionName} > ${item.link.name}`,
+          breadcrumb: `${translateSchemaText(sectionName)} > ${item.link.name}`,
           icon: item.link.icon,
         });
       } else if ('container' in item) {
-        visit(item.container.items, sectionName, `${sectionName} > ${item.container.name}`);
+        visit(item.container.items, sectionName, `${translateSchemaText(sectionName)} > ${item.container.name}`);
       }
     }
   }
@@ -116,7 +117,7 @@ function buildSearchIndex(
         type: 'link',
         viewName: name,
         section,
-        breadcrumb: section ? `${section} > ${display}` : display,
+        breadcrumb: section ? `${translateSchemaText(section)} > ${display}` : display,
         objectType: obj.type,
       });
     }
@@ -134,7 +135,9 @@ function buildSearchIndex(
           type: 'form',
           viewName,
           section,
-          breadcrumb: section ? `${section} > ${display} > ${formSection.title}` : `${display} > ${formSection.title}`,
+          breadcrumb: section
+            ? `${translateSchemaText(section)} > ${display} > ${formSection.title}`
+            : `${display} > ${formSection.title}`,
         });
       }
 
@@ -148,7 +151,9 @@ function buildSearchIndex(
           type: 'field',
           viewName,
           section,
-          breadcrumb: section ? `${section} > ${display} > ${field.label}` : `${display} > ${field.label}`,
+          breadcrumb: section
+            ? `${translateSchemaText(section)} > ${display} > ${field.label}`
+            : `${display} > ${field.label}`,
           keywords,
         });
       }

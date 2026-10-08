@@ -6,7 +6,7 @@
 
 import { useEffect } from 'react';
 
-const APP_NAME = 'Stalwart WebUI';
+const APP_NAME = 'Panda Mail 管理后台';
 
 export function useDocumentTitle(title?: string | null) {
   useEffect(() => {

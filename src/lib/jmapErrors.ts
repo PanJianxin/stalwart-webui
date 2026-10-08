@@ -6,6 +6,7 @@
 
 import type { JmapSetError, ValidationError } from '@/types/jmap';
 import i18n from '@/i18n';
+import { translateSchemaText } from '@/i18n/schemaChinese';
 
 export function validationErrorMessage(ve: ValidationError): string {
   switch (ve.type) {
@@ -20,13 +21,13 @@ export function validationErrorMessage(ve: ValidationError): string {
     case 'MinValue':
       return i18n.t('form.minValueIs', 'Minimum value is {{min}}.', { min: ve.required });
     default:
-      if (ve.value && ve.value.length > 0) return ve.value;
+      if (ve.value && ve.value.length > 0) return translateSchemaText(ve.value);
       return i18n.t('form.invalidValue', 'Invalid value.');
   }
 }
 
 export function friendlySetError(err: JmapSetError): string {
-  if (err.description) return err.description;
+  if (err.description) return translateSchemaText(err.description);
   switch (err.type) {
     case 'forbidden':
       return i18n.t('jmapErrors.forbidden', 'You do not have permission to perform this action.');
