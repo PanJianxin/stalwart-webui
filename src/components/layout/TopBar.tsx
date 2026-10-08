@@ -5,6 +5,8 @@
  */
 
 import { translateSchemaText } from '@/i18n/schemaChinese';
+import { setLanguage } from '@/i18n';
+import { Languages } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import * as LucideIcons from 'lucide-react';
@@ -116,12 +118,24 @@ export function TopBar() {
           size="icon"
           className="md:hidden"
           onClick={() => setPaletteOpen(true)}
-          aria-label="搜索"
+          aria-label={t('globalSearch.placeholder')}
         >
           <Search className="h-4 w-4" />
         </Button>
 
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="简体中文 / English" title="简体中文 / English">
+              <Languages className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setLanguage('zh')}>简体中文</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setLanguage('en')}>English</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t('toggleTheme', 'Toggle theme')}>
           {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}

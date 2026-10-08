@@ -31,3 +31,15 @@ describe('Chinese administration metadata', () => {
     expect(translateSchemaText('Dashboard')).toBe('运行总览');
   });
 });
+
+it('can switch dynamic labels back to the original English without modifying input values', async () => {
+  const i18n = (await import('./index')).default;
+  await i18n.changeLanguage('en');
+  try {
+    const source = { name: 'role', label: 'Administrator role', value: 'Administrator' };
+    expect(translateSchemaMetadata(source)).toEqual(source);
+  } finally {
+    await i18n.changeLanguage('zh');
+  }
+  expect(translateSchemaText('Administrator role')).toBe('管理员');
+});

@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { translateSchemaText } from '@/i18n/schemaChinese';
 /*
  * SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
@@ -22,6 +23,7 @@ export interface SearchIndexEntry {
 
 interface SchemaState {
   schema: Schema | null;
+  sourceSchema: Schema | null;
   isLoaded: boolean;
   viewToSection: Record<string, string>;
   searchIndex: SearchIndexEntry[];
@@ -165,6 +167,7 @@ function buildSearchIndex(
 
 export const useSchemaStore = create<SchemaState>()((set) => ({
   schema: null,
+  sourceSchema: null,
   isLoaded: false,
   viewToSection: {},
   searchIndex: [],
@@ -175,9 +178,15 @@ export const useSchemaStore = create<SchemaState>()((set) => ({
     const searchIndex = buildSearchIndex(schema, viewToSection, linkEntries);
     set({
       schema,
+      sourceSchema: source,
       isLoaded: true,
       viewToSection,
       searchIndex,
     });
   },
 }));
+
+i18n.on('languageChanged', () => {
+  const state = useSchemaStore.getState();
+  if (state.sourceSchema) state.setSchema(state.sourceSchema);
+});

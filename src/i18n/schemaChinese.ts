@@ -1,8 +1,9 @@
+import i18n from './index';
 import dictionary from './schema-zh.json';
 import overrides from './schema-zh-overrides.json';
 const phrases: Record<string, string> = { ...dictionary, ...overrides };
 export function translateSchemaText(text: string): string {
-  return phrases[text] ?? text;
+  return i18n.language.startsWith('en') ? text : (phrases[text] ?? text);
 }
 // Translate display metadata only. Object IDs, field names, enum values,
 // defaults, router section names and submitted values remain untouched.

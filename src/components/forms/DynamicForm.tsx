@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-SEL
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate, useBlocker } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -191,8 +191,11 @@ export function DynamicForm({ viewName, objectId }: DynamicFormProps) {
     setPrevCreateInitKey(undefined);
   }
 
+  const loadedObjectKey = useRef('');
   useEffect(() => {
     if (!schema || !resolved || isCreate) return;
+    const loadKey = JSON.stringify([viewName, objectId, fetchProperties]);
+    if (loadedObjectKey.current === loadKey) return;
     const { obj, sch } = resolved;
 
     const ctrl = new AbortController();
@@ -209,6 +212,7 @@ export function DynamicForm({ viewName, objectId }: DynamicFormProps) {
         const list = result?.list as Array<Record<string, unknown>> | undefined;
         if (list?.[0]) {
           const data = list[0];
+          loadedObjectKey.current = loadKey;
           setFormData({ ...data });
           setOriginalData({ ...data });
 
@@ -231,7 +235,7 @@ export function DynamicForm({ viewName, objectId }: DynamicFormProps) {
     return () => {
       ctrl.abort();
     };
-  }, [schema, resolved, objectId, isCreate, isSingleton, fetchProperties, t]);
+  }, [schema, resolved, objectId, isCreate, isSingleton, fetchProperties, t, viewName]);
 
   useEffect(() => {
     logFormChange(`${viewName}${objectId ? ` (${objectId})` : ' (new)'}`, formData);

@@ -6,13 +6,15 @@
 
 import { useEffect } from 'react';
 
-const APP_NAME = 'Panda Mail 管理后台';
+import { useTranslation } from 'react-i18next';
 
 export function useDocumentTitle(title?: string | null) {
+  const { i18n } = useTranslation();
+  const appName = i18n.language.startsWith('en') ? 'Panda Mail Administration' : 'Panda Mail 管理后台';
   useEffect(() => {
-    document.title = title ? `${title} · ${APP_NAME}` : APP_NAME;
+    document.title = title ? `${title} · ${appName}` : appName;
     return () => {
-      document.title = APP_NAME;
+      document.title = appName;
     };
-  }, [title]);
+  }, [title, appName]);
 }

@@ -1,3 +1,7 @@
+import i18n from '@/i18n';
+import { useTranslation } from 'react-i18next';
+const tr = (text: string, options = {}) =>
+  i18n.t(text, { ns: 'pandaDashboard', keySeparator: false, nsSeparator: false, defaultValue: text, ...options });
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, ArrowUpRight, Clock3, HardDrive, Mail, RefreshCw, ShieldCheck, Users } from 'lucide-react';
@@ -64,21 +68,22 @@ const tooltipStyle = {
 function ChartPanel({ title, detail, children }: { title: string; detail: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border bg-card p-5 shadow-sm">
-      <h2 className="font-semibold">{title}</h2>
-      <p className="mt-1 mb-5 text-xs leading-5 text-muted-foreground">{detail}</p>
+      <h2 className="font-semibold">{tr(title)}</h2>
+      <p className="mt-1 mb-5 text-xs leading-5 text-muted-foreground">{tr(detail)}</p>
       {children}
     </section>
   );
 }
-function EmptyChart({ text = '暂无可用数据' }: { text?: string }) {
+function EmptyChart({ text = tr('暂无可用数据') }: { text?: string }) {
   return (
     <div className="flex h-56 items-center justify-center rounded-xl bg-muted/30 text-sm text-muted-foreground">
-      {text}
+      {tr(text)}
     </div>
   );
 }
 
 export function PandaDashboard({ section }: { dashboardId: string; section: string }) {
+  useTranslation();
   const navigate = useNavigate();
   const permissions = useAccountStore((s) => s.permissions);
   const [overview, setOverview] = useState<Overview>(EMPTY);
@@ -133,7 +138,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
           const next: Overview = { counts: {}, accounts: [], certificates: [], listeners: [] };
           for (const [method, result, id] of results[0].value) {
             if (method === 'error') {
-              failures.push('部分管理数据暂不可用');
+              failures.push(tr('部分管理数据暂不可用'));
               continue;
             }
             if (typeof result.total === 'number') next.counts[id] = result.total;
@@ -142,11 +147,11 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
             if (id === 'listeners') next.listeners = (result.list ?? []) as Listener[];
           }
           setOverview(next);
-        } else failures.push('管理数据读取失败');
+        } else failures.push(tr('管理数据读取失败'));
         if (results[1].status === 'fulfilled') setHistory(results[1].value);
         else {
           setHistory(undefined);
-          failures.push('监控历史读取失败，请检查采集服务或账户权限');
+          failures.push(tr('监控历史读取失败，请检查采集服务或账户权限'));
         }
         setError([...new Set(failures)].join('；'));
         setUpdatedTime(new Date());
@@ -173,15 +178,15 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
   const stale = !latest || (updatedTime?.getTime() ?? 0) / 1000 - latest.sampleTime > 150;
   const mailDistribution = latest
     ? [
-        { name: '正常邮件', value: latest.hamTotal },
-        { name: '垃圾邮件', value: latest.spamTotal },
+        { name: tr('正常邮件'), value: latest.hamTotal },
+        { name: tr('垃圾邮件'), value: latest.spamTotal },
       ].filter((v) => v.value > 0)
     : [];
   const connections = latest
     ? [
-        { name: '网页 / JMAP', value: latest.httpConnections },
-        { name: 'SMTP 收件', value: latest.smtpConnections },
-        { name: 'SMTP 投递', value: latest.deliveryConnections },
+        { name: tr('网页 / JMAP'), value: latest.httpConnections },
+        { name: tr('SMTP 收件'), value: latest.smtpConnections },
+        { name: tr('SMTP 投递'), value: latest.deliveryConnections },
         { name: 'IMAP', value: latest.imapConnections },
         { name: 'POP3', value: latest.pop3Connections },
         { name: 'Sieve', value: latest.sieveConnections },
@@ -201,32 +206,32 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
     : undefined;
   const cards = [
     {
-      label: '邮件账户',
+      label: tr('邮件账户'),
       value: number(overview.counts.Account),
-      detail: `${number(overview.counts.Domain)} 个域名 · 含管理员与组`,
+      detail: tr('domains', { count: number(overview.counts.Domain) }),
       icon: Users,
       path: `/${section}/x:Account/User`,
       color: 'text-blue-600 bg-blue-500/10',
     },
     {
-      label: '待投递邮件',
+      label: tr('待投递邮件'),
       value: number(overview.counts.QueuedMessage),
-      detail: overview.counts.QueuedMessage === 0 ? '当前没有积压' : '查看队列与重试状态',
+      detail: overview.counts.QueuedMessage === 0 ? tr('当前没有积压') : tr('查看队列与重试状态'),
       icon: Mail,
       path: `/${section}/x:QueuedMessage`,
       color: 'text-teal-600 bg-teal-500/10',
     },
     {
-      label: '邮件进程内存',
+      label: tr('邮件进程内存'),
       value: bytes(latest?.memoryBytes),
-      detail: 'Stalwart 进程实际占用',
+      detail: tr('Stalwart 进程实际占用'),
       icon: HardDrive,
       color: 'text-violet-600 bg-violet-500/10',
     },
     {
-      label: '证书有效期',
-      value: minCertificateDays == null ? '—' : `${minCertificateDays} 天`,
-      detail: '最早到期的邮件服务证书',
+      label: tr('证书有效期'),
+      value: minCertificateDays == null ? '—' : tr('days', { count: minCertificateDays }),
+      detail: tr('最早到期的邮件服务证书'),
       icon: ShieldCheck,
       path: '/Settings/x:Certificate',
       color: 'text-amber-600 bg-amber-500/10',
@@ -239,19 +244,19 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
           <div className="mb-2 flex items-center gap-2 text-xs font-medium text-blue-600">
             <Activity size={14} /> PANDA MAIL
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">邮件运行总览</h1>
-          <p className="mt-2 text-sm text-muted-foreground">邮件处理、服务连接、存储与证书状态</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{tr('邮件运行总览')}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{tr('邮件处理、服务连接、存储与证书状态')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <span
             className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${stale ? 'text-amber-600' : 'text-teal-600'}`}
           >
             <span className={`h-2 w-2 rounded-full ${stale ? 'bg-amber-500' : 'bg-teal-500'}`} />
-            {stale ? '等待采样或数据过期' : '监控采样正常'}
+            {stale ? tr('等待采样或数据过期') : tr('监控采样正常')}
           </span>
           <Button variant="outline" onClick={() => void refresh()} disabled={loading}>
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-            {loading ? '更新中' : '刷新'}
+            {loading ? tr('更新中') : tr('刷新')}
           </Button>
         </div>
       </header>
@@ -283,13 +288,13 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock3 size={14} />
-          每分钟采样 · 自动刷新 · 保留 7 天
+          {tr('每分钟采样 · 自动刷新 · 保留 7 天')}
         </div>
         <div className="flex rounded-lg border bg-card p-1">
           {[
-            { value: 1, label: '近 1 小时' },
-            { value: 24, label: '近 24 小时' },
-            { value: 168, label: '近 7 天' },
+            { value: 1, label: tr('近 1 小时') },
+            { value: 24, label: tr('近 24 小时') },
+            { value: 168, label: tr('近 7 天') },
           ].map((p) => (
             <button
               key={p.value}
@@ -318,7 +323,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Area
                   type="linear"
                   dataKey="ham"
-                  name="正常邮件"
+                  name={tr('正常邮件')}
                   stroke={COLORS[0]}
                   fill={COLORS[0]}
                   fillOpacity={0.1}
@@ -328,7 +333,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Area
                   type="linear"
                   dataKey="spam"
-                  name="垃圾邮件"
+                  name={tr('垃圾邮件')}
                   stroke={COLORS[1]}
                   fill={COLORS[1]}
                   fillOpacity={0.1}
@@ -338,7 +343,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Area
                   type="linear"
                   dataKey="delivered"
-                  name="完成投递"
+                  name={tr('完成投递')}
                   stroke={COLORS[2]}
                   fill={COLORS[2]}
                   fillOpacity={0.1}
@@ -366,7 +371,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                     isAnimationActive={false}
                   >
                     {mailDistribution.map((item) => (
-                      <Cell key={item.name} fill={item.name === '垃圾邮件' ? COLORS[1] : COLORS[0]} />
+                      <Cell key={item.name} fill={item.name === tr('垃圾邮件') ? COLORS[1] : COLORS[0]} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={tooltipStyle} />
@@ -374,7 +379,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 </PieChart>
               </ResponsiveContainer>
               <p className="text-center text-xs text-muted-foreground">
-                累计入箱 {number(latest ? latest.hamTotal + latest.spamTotal : undefined)} 封
+                {tr('inbound', { count: number(latest ? latest.hamTotal + latest.spamTotal : undefined) })}
               </p>
             </>
           ) : (
@@ -393,7 +398,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Tooltip contentStyle={tooltipStyle} />
                 <Bar
                   dataKey="value"
-                  name="活动连接"
+                  name={tr('活动连接')}
                   radius={[5, 5, 0, 0]}
                   fill={COLORS[0]}
                   maxBarSize={38}
@@ -415,7 +420,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Tooltip contentStyle={tooltipStyle} />
                 <Area
                   dataKey="memoryMiB"
-                  name="进程内存 MB"
+                  name={tr('进程内存 MB')}
                   stroke={COLORS[3]}
                   fill={COLORS[3]}
                   fillOpacity={0.12}
@@ -438,7 +443,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Tooltip contentStyle={tooltipStyle} />
                 <Bar
                   dataKey="value"
-                  name="已用存储 KB"
+                  name={tr('已用存储 KB')}
                   fill={COLORS[2]}
                   radius={[0, 5, 5, 0]}
                   maxBarSize={28}
@@ -463,7 +468,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <Tooltip contentStyle={tooltipStyle} />
                 <Bar
                   dataKey="authFailed"
-                  name="认证失败"
+                  name={tr('认证失败')}
                   fill="#f97316"
                   radius={[3, 3, 0, 0]}
                   isAnimationActive={false}
@@ -492,19 +497,19 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                     <div>
                       <p className="font-medium">{Object.keys(c.subjectAlternativeNames ?? {}).join('、')}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {new Date(c.notValidAfter).toLocaleDateString('zh-CN')} 到期
+                        {tr('expires', { date: new Date(c.notValidAfter).toLocaleDateString(i18n.language) })}
                       </p>
                     </div>
                     <span
                       className={`rounded-full px-3 py-1 text-xs ${days <= 30 ? 'bg-amber-500/10 text-amber-700' : 'bg-teal-500/10 text-teal-700'}`}
                     >
-                      {days < 0 ? '已过期' : `剩余 ${days} 天`}
+                      {days < 0 ? tr('已过期') : tr('remaining', { count: days })}
                     </span>
                   </button>
                 );
               })
             ) : (
-              <p className="text-sm text-muted-foreground">暂无可读取证书</p>
+              <p className="text-sm text-muted-foreground">{tr('暂无可读取证书')}</p>
             )}
           </div>
         </ChartPanel>
@@ -526,7 +531,7 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
                 <span
                   className={`text-right whitespace-nowrap ${l.useTls ? 'text-teal-600' : 'text-muted-foreground'}`}
                 >
-                  {l.useTls ? '支持 TLS' : '内部明文'}
+                  {l.useTls ? tr('支持 TLS') : tr('内部明文')}
                 </span>
               </div>
             ))}
@@ -534,11 +539,11 @@ export function PandaDashboard({ section }: { dashboardId: string; section: stri
         </ChartPanel>
       </div>
       <footer className="text-xs leading-6 text-muted-foreground">
-        {updatedTime ? `页面更新：${updatedTime.toLocaleString('zh-CN')}` : '页面尚未更新'} ·{' '}
+        {updatedTime ? tr('updated', { date: updatedTime.toLocaleString(i18n.language) }) : tr('页面尚未更新')} ·{' '}
         {history?.collectionStartTime
-          ? `历史采集开始：${new Date(history.collectionStartTime * 1000).toLocaleString('zh-CN')}`
-          : '历史尚未开始采集'}
-        。图表只显示实际采样，不补造过去的数据。
+          ? tr('started', { date: new Date(history.collectionStartTime * 1000).toLocaleString(i18n.language) })
+          : tr('历史尚未开始采集')}
+        {tr('。图表只显示实际采样，不补造过去的数据。')}
       </footer>
     </div>
   );

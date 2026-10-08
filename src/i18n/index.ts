@@ -8,24 +8,32 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import en from './en.json';
 import zh from './zh.json';
+import dashboardEn from './dashboard-en.json';
+import dashboardZh from './dashboard-zh.json';
 
-const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur'];
-document.documentElement.lang = 'zh-CN';
+const savedLanguage = localStorage.getItem('pandaMailLanguage');
+const language = savedLanguage === 'en' ? 'en' : 'zh';
+document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
 
 i18n.use(initReactI18next).init({
-  resources: { en: { translation: en }, zh: { translation: zh } },
-  lng: 'zh',
+  resources: {
+    en: { translation: en, pandaDashboard: dashboardEn },
+    zh: { translation: zh, pandaDashboard: dashboardZh },
+  },
+  lng: language,
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 });
 
+export function setLanguage(language: 'zh' | 'en') {
+  localStorage.setItem('pandaMailLanguage', language);
+  document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+  document.documentElement.dir = 'ltr';
+  void i18n.changeLanguage(language);
+}
 export function setLocale(locale: string) {
-  // This installation presents a Chinese administration interface, independently of mailbox locale.
+  // Account locale must not override the explicit administration language choice.
   void locale;
-  const lang = 'zh';
-  i18n.changeLanguage(lang);
-  const isRtl = RTL_LANGUAGES.includes(lang);
-  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
 }
 
 export default i18n;
